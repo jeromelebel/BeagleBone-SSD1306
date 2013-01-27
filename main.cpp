@@ -1,11 +1,29 @@
 #include "ssd1306.h"
 #include <stdio.h>
+#include <stdlib.h>
+
+SSD1306_Color colorWithString(const char *string, SSD1306_Color defaultValue = SSD1306_WhiteColor)
+{
+    SSD1306_Color result = defaultValue;
+    
+    if (strcasecmp(string, "white") == 0) {
+        result = SSD1306_WhiteColor;
+    } else if (strcasecmp(string, "black") == 0) {
+        result = SSD1306_BlackColor;
+    } else if (strcasecmp(string, "transparent") == 0) {
+        result = SSD1306_TransparentColor;
+    } else if (strcasecmp(string, "inverse") == 0) {
+        result = SSD1306_InverseColor;
+    }
+    return result;
+}
 
 int main(int argc, const char **argv)
 {
     SSD1306 display(0x3D, SSD1306_128_64);
     Font *currentFont = &font1;
     SSD1306_Pixel x = 0, y = 0;
+    SSD1306_Color color = SSD1306_WhiteColor, backgroundColor = SSD1306_BlackColor;
     int vsize = 1, hsize = 1;
     
     if (display.openDevice("/dev/i2c-3") != 0) {
@@ -16,10 +34,44 @@ int main(int argc, const char **argv)
         printf("Problem to init device\n");
         return 1;
     }
-    display.clearDisplay();
     
+    display.clearDisplay();
     for (int ii = 1; ii < argc; ii++) {
-        if (strcmp(argv[ii], "--font1") == 0) {
+        if (strcmp(argv[ii], "--clear") == 0) {
+            display.clearDisplay();
+        } else if (strcmp(argv[ii], "--color") == 0) {
+            ii++;
+            if (ii < argc) {
+                color = colorWithString(argv[ii], SSD1306_WhiteColor);
+            }
+        } else if (strcmp(argv[ii], "--backgroundcolor") == 0) {
+            ii++;
+            if (ii < argc) {
+                backgroundColor = colorWithString(argv[ii], SSD1306_BlackColor);
+            }
+        } else if (strcmp(argv[ii], "--x") == 0) {
+            ii++;
+            if (ii < argc) {
+                x = atoi(argv[ii]);
+            }
+        } else if (strcmp(argv[ii], "--y") == 0) {
+            ii++;
+            if (ii < argc) {
+                y = atoi(argv[ii]);
+            }
+        } else if (strcmp(argv[ii], "--lineto") == 0) {
+            ii++;
+            if (ii + 1 < argc) {
+                SSD1306_Pixel x2, y2;
+                
+                x2 = atoi(argv[ii]);
+                ii++;
+                y2 = atoi(argv[ii]);
+                display.drawLine(x, y, x2, y2, color);
+                x = x2;
+                y = y2;
+            }
+        } else if (strcmp(argv[ii], "--font1") == 0) {
             currentFont = &font1;
         } else if (strcmp(argv[ii], "--font2") == 0) {
             currentFont = &font2;
@@ -42,9 +94,9 @@ int main(int argc, const char **argv)
         } else if (strcmp(argv[ii], "--upsidedown") == 0) {
             display.setOrientation(SSD1306_UpSideDownOrientation);
         } else {
-            x = 0;
-            display.printString(x, y, argv[ii], SSD1306_WhiteColor, SSD1306_BlackColor, currentFont, hsize, vsize);
+            display.printString(x, y, argv[ii], color, backgroundColor, currentFont, hsize, vsize);
             y += currentFont->getHeight() * vsize;
+            x = 0;
         }
     }
     display.pushDisplay();

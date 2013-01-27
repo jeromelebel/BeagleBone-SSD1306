@@ -292,7 +292,7 @@ int SSD1306::drawChar(SSD1306_Pixel x, SSD1306_Pixel y, unsigned char c, SSD1306
                 } else {  // big size
                     this->fillRect(x + (cursorX * horizontalSize), y + (cursorY * verticalSize), horizontalSize, verticalSize, color);
                 } 
-            } else if (backgroundColor != color) {
+            } else {
                 if (horizontalSize == 1 && verticalSize == 1) {
                     this->drawPixel(x + cursorX, y + cursorY, backgroundColor);
                 } else {  // big size
@@ -340,7 +340,7 @@ void SSD1306::drawPixel(SSD1306_Pixel x, SSD1306_Pixel y, SSD1306_Color color)
                 _buffer[x + (y/8) * _realWidth] &= ~_BV((y%8));
                 break;
             case SSD1306_InverseColor:
-                _buffer[x + (y/8) * _realWidth] ^= ~_BV((y%8));
+                _buffer[x + (y/8) * _realWidth] = _buffer[x + (y/8) * _realWidth] ^ _BV((y%8));
                 break;
             case SSD1306_TransparentColor:
                 break;
