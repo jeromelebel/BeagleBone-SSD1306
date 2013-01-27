@@ -265,11 +265,11 @@ void SSD1306::printString(SSD1306_Pixel &x, SSD1306_Pixel &y, const char *string
         } else {
             x += this->drawChar(x, y, string[0], color, backgroundColor, font, horizontalSize, verticalSize);
         }
-        if (x + font->getWidth() > _realWidth) {
+        if (x + (font->getWidth() * horizontalSize) > this->getWidth()) {
             y = y + (font->getHeight() * verticalSize);
             x = 0;
         }
-        if (y + (font->getHeight() * verticalSize) > _realHeight) {
+        if (y + (font->getHeight() * verticalSize) > this->getHeight()) {
             return;
         }
         string = string + 1;
