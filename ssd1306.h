@@ -24,6 +24,12 @@ typedef enum {
     SSD1306_TransparentColor
 } SSD1306_Color;
 
+typedef enum {
+    SSD1306_NoMirror = 0,
+    SSD1306_HorizontalMirror = 1,
+    SSD1306_VerticalMirror = 2,
+} SSD1306_Mirror;
+
 class SSD1306
 {
 private:
@@ -34,6 +40,7 @@ private:
     SSD1306_Pixel _realWidth;
     SSD1306_Pixel _realHeight;
     SSD1306_Orientation _orientation;
+    SSD1306_Mirror _mirror;
     
     void sendCommand(unsigned char command);
     
@@ -43,10 +50,13 @@ public:
     void closeDevice(void);
     int initDevice(void);
     
-    SSD1306_Pixel getWidth(void) { return (_orientation & 1) == 0 ? _realWidth : _realHeight; };
-    SSD1306_Pixel getHeight(void) { return (_orientation & 1) == 0 ? _realHeight : _realWidth; };
+    unsigned char sideOrientation(void) { return (_orientation & 1) != 0; };
+    SSD1306_Pixel getWidth(void) { return this->sideOrientation() ? _realHeight : _realWidth; };
+    SSD1306_Pixel getHeight(void) { return this->sideOrientation() ? _realWidth : _realHeight; };
     SSD1306_Orientation getOrientation(void) { return _orientation; };
     void setOrientation(SSD1306_Orientation orientation) { _orientation = orientation; };
+    SSD1306_Mirror getMirror(void) { return _mirror; };
+    void setMirror(SSD1306_Mirror mirror) { _mirror = mirror; };
     
     void inverseDisplay(void);
     void printString(SSD1306_Pixel &x, SSD1306_Pixel &y, const char *string, SSD1306_Color color, SSD1306_Color backgroundColor, Font *font, unsigned char horizontalSize = 1, unsigned char verticalSize = 1);

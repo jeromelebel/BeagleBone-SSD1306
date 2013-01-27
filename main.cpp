@@ -71,6 +71,10 @@ int main(int argc, const char **argv)
                 x = x2;
                 y = y2;
             }
+        } else if (strcmp(argv[ii], "--horizontalmirror") == 0) {
+            display.setMirror((SSD1306_Mirror)(display.getMirror() ^ SSD1306_HorizontalMirror));
+        } else if (strcmp(argv[ii], "--verticalmirror") == 0) {
+            display.setMirror((SSD1306_Mirror)(display.getMirror() ^ SSD1306_VerticalMirror));
         } else if (strcmp(argv[ii], "--font1") == 0) {
             currentFont = &font1;
         } else if (strcmp(argv[ii], "--font2") == 0) {

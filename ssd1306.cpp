@@ -69,6 +69,7 @@ SSD1306::SSD1306(unsigned char address, SSD1306_Type type)
     _address = address;
     _orientation = SSD1306_NormalOrientation;
     _type = type;
+    _mirror = SSD1306_NoMirror;
     _i2cFileHandler = 0;
     switch(_type) {
         case SSD1306_128_64:
@@ -328,6 +329,20 @@ void SSD1306::drawPixel(SSD1306_Pixel x, SSD1306_Pixel y, SSD1306_Color color)
             y = _realHeight - y - 1;
             break;
     }
+    if (_mirror & SSD1306_VerticalMirror) {
+        if (this->sideOrientation()) {
+            x = _realWidth - x - 1;
+        } else {
+            y = _realHeight - y - 1;
+        }
+    }
+    if (_mirror & SSD1306_HorizontalMirror) {
+        if (this->sideOrientation()) {
+            y = _realHeight - y - 1;
+        } else {
+            x = _realWidth - x - 1;
+        }
+    }
     if ((x >= 0)
         && (x < _realWidth)
         && (y >= 0)
@@ -391,20 +406,20 @@ void SSD1306::drawLine(SSD1306_Pixel x0, SSD1306_Pixel y0, SSD1306_Pixel x1, SSD
 
 void SSD1306::drawFastVLine(SSD1306_Pixel x, SSD1306_Pixel y, SSD1306_Pixel h, SSD1306_Color color)
 {
-    if (_orientation == SSD1306_NormalOrientation || _orientation == SSD1306_UpSideDownOrientation) {
+    if (this->sideOrientation()) {
+        // stupidest version - update in subclasses if desired!
         drawLine(x, y, x, y+h-1, color);
     } else {
-        // stupidest version - update in subclasses if desired!
         drawLine(x, y, x, y+h-1, color);
     }
 }
 
 void SSD1306::drawFastHLine(SSD1306_Pixel x, SSD1306_Pixel y, SSD1306_Pixel h, SSD1306_Color color)
 {
-    if (_orientation == SSD1306_NormalOrientation || _orientation == SSD1306_UpSideDownOrientation) {
-        // stupidest version - update in subclasses if desired!
+    if (this->sideOrientation()) {
         drawLine(x, y, x + h - 1, y, color);
     } else {
+        // stupidest version - update in subclasses if desired!
         drawLine(x, y, x + h - 1, y, color);
     }
 }
@@ -413,13 +428,13 @@ void SSD1306::fillRect(SSD1306_Pixel x, SSD1306_Pixel y, SSD1306_Pixel w, SSD130
 {
     SSD1306_Pixel ii;
     
-    if (_orientation == SSD1306_NormalOrientation || _orientation == SSD1306_UpSideDownOrientation) {
-        for (ii = x; ii < x + w; ii++) {
-            drawFastVLine(ii, y, h, color); 
-        }
-    } else {
+    if (this->sideOrientation()) {
         for (ii = y; ii < y + h; ii++) {
             drawFastHLine(x, ii, w, color); 
+        }
+    } else {
+        for (ii = x; ii < x + w; ii++) {
+            drawFastVLine(ii, y, h, color); 
         }
     }
 }
