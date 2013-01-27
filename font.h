@@ -1,7 +1,7 @@
+#include "display.h"
+
 #ifndef FONT_H
 #define FONT_H
-
-typedef unsigned char SSD1306_Pixel;
 
 class Font
 {
@@ -12,7 +12,7 @@ private:
     unsigned int _charCount;
 
 public:
-    Font(SSD1306_Pixel width, SSD1306_Pixel height, const unsigned char *buffer, int bufferSize);
+    Font(PixelCoordonate width, PixelCoordonate height, const unsigned char *buffer, int bufferSize);
     
     unsigned char getWidth(void) { return _width; };
     unsigned char getHeight(void) { return _height; };

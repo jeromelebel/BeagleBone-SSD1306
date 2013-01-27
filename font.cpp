@@ -520,7 +520,7 @@ const unsigned char BasicFont2[] = {
 Font font1(5, 8, BasicFont1, sizeof(BasicFont1));
 Font font2(8, 8, BasicFont2, sizeof(BasicFont2));
 
-Font::Font(SSD1306_Pixel width, SSD1306_Pixel height, const unsigned char *buffer, int bufferSize)
+Font::Font(PixelCoordonate width, PixelCoordonate height, const unsigned char *buffer, int bufferSize)
 {
     _width = width;
     _height = height;

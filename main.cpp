@@ -1,53 +1,54 @@
 #include "ssd1306.h"
+#include "font.h"
 #include <stdio.h>
 #include <stdlib.h>
 
-SSD1306_Color colorWithString(const char *string, SSD1306_Color defaultValue = SSD1306_WhiteColor)
+DisplayColor colorWithString(const char *string, DisplayColor defaultValue = DisplayWhiteColor)
 {
-    SSD1306_Color result = defaultValue;
+    DisplayColor result = defaultValue;
     
     if (strcasecmp(string, "white") == 0) {
-        result = SSD1306_WhiteColor;
+        result = DisplayWhiteColor;
     } else if (strcasecmp(string, "black") == 0) {
-        result = SSD1306_BlackColor;
+        result = DisplayBlackColor;
     } else if (strcasecmp(string, "transparent") == 0) {
-        result = SSD1306_TransparentColor;
+        result = DisplayTransparentColor;
     } else if (strcasecmp(string, "inverse") == 0) {
-        result = SSD1306_InverseColor;
+        result = DisplayInverseColor;
     }
     return result;
 }
 
 int main(int argc, const char **argv)
 {
-    SSD1306 display(0x3D, SSD1306_128_64);
+    SSD1306 device(0x3D, SSD1306_128_64);
     Font *currentFont = &font1;
-    SSD1306_Pixel x = 0, y = 0;
-    SSD1306_Color color = SSD1306_WhiteColor, backgroundColor = SSD1306_BlackColor;
+    PixelCoordonate x = 0, y = 0;
+    DisplayColor color = DisplayWhiteColor, backgroundColor = DisplayBlackColor;
     int vsize = 1, hsize = 1;
     
-    if (display.openDevice("/dev/i2c-3") != 0) {
+    if (device.openDevice("/dev/i2c-3") != 0) {
         printf("Problem to open device\n");
         return 1;
     }
-    if (display.initDevice() != 0) {
+    if (device.initDevice() != 0) {
         printf("Problem to init device\n");
         return 1;
     }
     
-    display.clearDisplay();
+    device.getDisplay()->clearDisplay();
     for (int ii = 1; ii < argc; ii++) {
         if (strcmp(argv[ii], "--clear") == 0) {
-            display.clearDisplay();
+            device.getDisplay()->clearDisplay();
         } else if (strcmp(argv[ii], "--color") == 0) {
             ii++;
             if (ii < argc) {
-                color = colorWithString(argv[ii], SSD1306_WhiteColor);
+                color = colorWithString(argv[ii], DisplayWhiteColor);
             }
         } else if (strcmp(argv[ii], "--backgroundcolor") == 0) {
             ii++;
             if (ii < argc) {
-                backgroundColor = colorWithString(argv[ii], SSD1306_BlackColor);
+                backgroundColor = colorWithString(argv[ii], DisplayBlackColor);
             }
         } else if (strcmp(argv[ii], "--x") == 0) {
             ii++;
@@ -62,19 +63,19 @@ int main(int argc, const char **argv)
         } else if (strcmp(argv[ii], "--lineto") == 0) {
             ii++;
             if (ii + 1 < argc) {
-                SSD1306_Pixel x2, y2;
+                PixelCoordonate x2, y2;
                 
                 x2 = atoi(argv[ii]);
                 ii++;
                 y2 = atoi(argv[ii]);
-                display.drawLine(x, y, x2, y2, color);
+                device.getDisplay()->drawLine(x, y, x2, y2, color);
                 x = x2;
                 y = y2;
             }
         } else if (strcmp(argv[ii], "--horizontalmirror") == 0) {
-            display.setMirror((SSD1306_Mirror)(display.getMirror() ^ SSD1306_HorizontalMirror));
+            device.getDisplay()->setMirror((DisplayMirror)(device.getDisplay()->getMirror() ^ DisplayHorizontalMirror));
         } else if (strcmp(argv[ii], "--verticalmirror") == 0) {
-            display.setMirror((SSD1306_Mirror)(display.getMirror() ^ SSD1306_VerticalMirror));
+            device.getDisplay()->setMirror((DisplayMirror)(device.getDisplay()->getMirror() ^ DisplayVerticalMirror));
         } else if (strcmp(argv[ii], "--font1") == 0) {
             currentFont = &font1;
         } else if (strcmp(argv[ii], "--font2") == 0) {
@@ -92,17 +93,17 @@ int main(int argc, const char **argv)
         } else if (strcmp(argv[ii], "--hsize2") == 0) {
             hsize = 2;
         } else if (strcmp(argv[ii], "--right") == 0) {
-            display.setOrientation(SSD1306_RightOrientation);
+            device.getDisplay()->setOrientation(DisplayRightOrientation);
         } else if (strcmp(argv[ii], "--left") == 0) {
-            display.setOrientation(SSD1306_LeftOrientation);
+            device.getDisplay()->setOrientation(DisplayLeftOrientation);
         } else if (strcmp(argv[ii], "--upsidedown") == 0) {
-            display.setOrientation(SSD1306_UpSideDownOrientation);
+            device.getDisplay()->setOrientation(DisplayUpSideDownOrientation);
         } else {
-            display.printString(x, y, argv[ii], color, backgroundColor, currentFont, hsize, vsize);
+            device.getDisplay()->printString(x, y, argv[ii], color, backgroundColor, currentFont, hsize, vsize);
             y += currentFont->getHeight() * vsize;
             x = 0;
         }
     }
-    display.pushDisplay();
+    device.pushDisplay();
     return 0;
 }
